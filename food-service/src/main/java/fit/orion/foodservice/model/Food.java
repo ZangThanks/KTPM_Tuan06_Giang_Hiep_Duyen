@@ -1,6 +1,7 @@
 package fit.orion.foodservice.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -14,11 +15,20 @@ import lombok.*;
 @Table(name = "foods")
 public class Food {
     @Id
-    private long id;
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
 
     private double price;
 
     private int inStock;
+    private String image;
+
+    public Food(String name, int inStock, double price, String image ) {
+        this.inStock = inStock;
+        this.price = price;
+        this.name = name;
+        this.image = image;
+    }
 }
