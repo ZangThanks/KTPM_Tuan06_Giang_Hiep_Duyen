@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
 import AdminFoods from './pages/AdminFoods';
+import MyOrders from './pages/MyOrders';
 
 // Component bảo vệ route (Protected Route)
 function ProtectedRoute({ children, requiredRole = null }) {
@@ -72,6 +73,15 @@ export default function App() {
                     element={
                         <ProtectedRoute>
                             <Cart />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/my-orders"
+                    element={
+                        <ProtectedRoute>
+                            <MyOrders />
                         </ProtectedRoute>
                     }
                 />

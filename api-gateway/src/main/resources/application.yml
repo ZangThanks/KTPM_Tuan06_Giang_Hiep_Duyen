@@ -43,9 +43,9 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/api/payments,/api/payments/**
+            - Path=/api/payments,/api/payments/**,api/notifications,api/notifications/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://172.20.36.199:8761/eureka
+      defaultZone: http://192.168.137.99:8761/eureka

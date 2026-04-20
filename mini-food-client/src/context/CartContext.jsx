@@ -1,86 +1,85 @@
 /* File: src/context/CartContext.jsx */
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from "react";
 
 export const CartContext = createContext();
 
 export function CartProvider({ children }) {
-    const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]);
 
-    // Khởi tạo từ localStorage
-    useEffect(() => {
-        const savedCart = localStorage.getItem('cart');
-        if (savedCart) {
-            setCart(JSON.parse(savedCart));
-        }
-    }, []);
+  // Khởi tạo từ localStorage
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+  }, []);
 
-    // Lưu cart vào localStorage mỗi lần thay đổi
-    useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cart));
-    }, [cart]);
+  // Lưu cart vào localStorage
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
-    // Thêm sản phẩm vào giỏ
-    const addToCart = (food) => {
-        const existingItem = cart.find((item) => item.foodId === food.foodId);
+  // Thêm sản phẩm vào giỏ
+  const addToCart = (food) => {
+    const foodId = food.id || food.foodId;
 
-        if (existingItem) {
-            // Nếu sản phẩm đã tồn tại, tăng số lượng
-            setCart(
-                cart.map((item) =>
-                    item.foodId === food.foodId
-                        ? { ...item, quantity: item.quantity + 1 }
-                        : item,
-                ),
-            );
-        } else {
-            // Thêm sản phẩm mới
-            setCart([...cart, { ...food, quantity: 1 }]);
-        }
-    };
+    const existingItem = cart.find((item) => item.foodId === foodId);
 
-    // Cập nhật số lượng
-    const updateQuantity = (foodId, quantity) => {
-        if (quantity <= 0) {
-            removeFromCart(foodId);
-        } else {
-            setCart(
-                cart.map((item) =>
-                    item.foodId === foodId ? { ...item, quantity } : item,
-                ),
-            );
-        }
-    };
+    if (existingItem) {
+      // Nếu sản phẩm đã tồn tại, tăng số lượng
+      setCart(
+        cart.map((item) =>
+          item.foodId === foodId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        ),
+      );
+    } else {
+      // Thêm sản phẩm mới (normalize về 'foodId')
+      setCart([...cart, { ...food, foodId: foodId, quantity: 1 }]);
+    }
+  };
 
-    // Xóa sản phẩm khỏi giỏ
-    const removeFromCart = (foodId) => {
-        setCart(cart.filter((item) => item.foodId !== foodId));
-    };
+  // Cập nhật số lượng
+  const updateQuantity = (foodId, quantity) => {
+    if (quantity <= 0) {
+      removeFromCart(foodId);
+    } else {
+      setCart(
+        cart.map((item) =>
+          item.foodId === foodId ? { ...item, quantity } : item,
+        ),
+      );
+    }
+  };
 
-    // Xóa toàn bộ giỏ
-    const clearCart = () => {
-        setCart([]);
-    };
+  // Xóa sản phẩm khỏi giỏ
+  const removeFromCart = (foodId) => {
+    setCart(cart.filter((item) => item.foodId !== foodId));
+  };
 
-    // Tính tổng tiền
-    const getTotalPrice = () => {
-        return cart.reduce(
-            (total, item) => total + item.price * item.quantity,
-            0,
-        );
-    };
+  // Xóa toàn bộ giỏ
+  const clearCart = () => {
+    setCart([]);
+  };
 
-    return (
-        <CartContext.Provider
-            value={{
-                cart,
-                addToCart,
-                updateQuantity,
-                removeFromCart,
-                clearCart,
-                getTotalPrice,
-            }}
-        >
-            {children}
-        </CartContext.Provider>
-    );
+  // Tính tổng tiền
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        getTotalPrice,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 }
