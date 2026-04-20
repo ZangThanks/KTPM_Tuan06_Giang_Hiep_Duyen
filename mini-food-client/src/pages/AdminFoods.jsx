@@ -10,15 +10,14 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AdminFoods() {
     const { token } = useContext(AuthContext);
     const [foods, setFoods] = useState([]);
+    const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        foodName: '',
-        description: '',
+        name: '',
         price: '',
-        quantity: '',
-        image: '🍔',
+        inStock: '',
     });
 
     useEffect(() => {
@@ -37,12 +36,10 @@ export default function AdminFoods() {
             // Dữ liệu mẫu cho demo
             setFoods([
                 {
-                    foodId: 1,
-                    foodName: 'Cơm Gà Hainanese',
-                    description: 'Cơm gà nấu theo cách Hainanese',
+                    id: 1,
+                    name: 'Milk',
                     price: 45000,
-                    quantity: 20,
-                    image: '🍚',
+                    inStock: 20,
                 },
             ]);
         } finally {
@@ -54,10 +51,7 @@ export default function AdminFoods() {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]:
-                name === 'price' || name === 'quantity'
-                    ? parseInt(value) || 0
-                    : value,
+            [name]: value,
         }));
     };
 
@@ -65,57 +59,62 @@ export default function AdminFoods() {
         e.preventDefault();
 
         const payload = {
-            foodName: formData.foodName,
-            description: formData.description,
-            price: formData.price,
-            quantity: formData.quantity,
-            image: formData.image,
+            name: formData.name.trim(),
+            price: Number(formData.price),
+            inStock: Number(formData.inStock),
+            image: formData.image.trim() || 'https://via.placeholder.com/400x300?text=No+Image',
         };
 
+        if (!payload.name) {
+            alert('Tên món ăn không được để trống!');
+            return;
+        }
+
+        if (Number.isNaN(payload.price) || Number.isNaN(payload.inStock)) {
+            alert('Giá và số lượng phải là số hợp lệ!');
+            return;
+        }
+
         try {
+            setSaving(true);
             if (editingId) {
                 // TODO: Thay bằng API thật của bạn (PUT /api/foods/{id})
-                await axios.put(`${API_BASE}/foods/${editingId}`, payload, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                console.log('✅ Cập nhật món ăn thành công!');
+                await axios.put(
+                    `${API_BASE}/foods/${editingId}`,
+                    { ...payload, id: editingId },
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                );
+                console.log('Cap nhat mon an thanh cong!');
             } else {
                 // TODO: Thay bằng API thật của bạn (POST /api/foods)
                 await axios.post(`${API_BASE}/foods`, payload, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log('✅ Thêm món ăn mới thành công!');
-            }
-
-            // Cập nhật giả lập (demo)
-            if (editingId) {
-                setFoods(
-                    foods.map((f) =>
-                        f.foodId === editingId ? { ...f, ...payload } : f,
-                    ),
-                );
-            } else {
-                setFoods([...foods, { foodId: Date.now(), ...payload }]);
+                console.log('Them mon an moi thanh cong!');
             }
 
             resetForm();
-            fetchFoods();
         } catch (err) {
             console.error('Error saving food:', err);
             alert('Lỗi khi lưu dữ liệu!');
+        } finally {
+            setSaving(false);
+            fetchFoods();
         }
     };
 
-    const handleDelete = async (foodId) => {
+    const handleDelete = async (id) => {
         if (!window.confirm('Bạn có chắc chắn muốn xóa?')) return;
 
         try {
             // TODO: Thay bằng API thật của bạn (DELETE /api/foods/{id})
-            await axios.delete(`${API_BASE}/foods/${foodId}`, {
+            await axios.delete(`${API_BASE}/foods/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log('✅ Xóa món ăn thành công!');
-            setFoods(foods.filter((f) => f.foodId !== foodId));
+            console.log('Xoa mon an thanh cong!');
+            fetchFoods();
         } catch (err) {
             console.error('Error deleting food:', err);
             alert('Lỗi khi xóa dữ liệu!');
@@ -123,13 +122,12 @@ export default function AdminFoods() {
     };
 
     const handleEdit = (food) => {
-        setEditingId(food.foodId);
+        setEditingId(food.id);
         setFormData({
-            foodName: food.foodName,
-            description: food.description,
+            name: food.name,
             price: food.price,
-            quantity: food.quantity,
-            image: food.image || '🍔',
+          inStock: food.inStock,
+            image: food.image,
         });
         setShowForm(true);
     };
@@ -138,11 +136,10 @@ export default function AdminFoods() {
         setShowForm(false);
         setEditingId(null);
         setFormData({
-            foodName: '',
-            description: '',
+            name: '',
             price: '',
-            quantity: '',
-            image: '🍔',
+            inStock: '',
+            image: '',
         });
     };
 
@@ -188,8 +185,8 @@ export default function AdminFoods() {
                                     </label>
                                     <input
                                         type="text"
-                                        name="foodName"
-                                        value={formData.foodName}
+                                        name="name"
+                                        value={formData.name}
                                         onChange={handleInputChange}
                                         placeholder="Nhập tên món ăn"
                                         required
@@ -221,8 +218,8 @@ export default function AdminFoods() {
                                     </label>
                                     <input
                                         type="number"
-                                        name="quantity"
-                                        value={formData.quantity}
+                                        name="inStock"
+                                        value={formData.inStock}
                                         onChange={handleInputChange}
                                         placeholder="0"
                                         required
@@ -230,46 +227,34 @@ export default function AdminFoods() {
                                         className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-orange-500"
                                     />
                                 </div>
-
-                                {/* Icon */}
                                 <div>
                                     <label className="block text-gray-700 font-semibold mb-2">
-                                        Icon Emoji
+                                        Hình ảnh
                                     </label>
                                     <input
                                         type="text"
                                         name="image"
                                         value={formData.image}
                                         onChange={handleInputChange}
-                                        maxLength="2"
-                                        placeholder="🍔"
-                                        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-orange-500 text-2xl text-center"
+                                        placeholder="Nhập URL hình ảnh"
+                                        required
+                                        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-orange-500"
                                     />
                                 </div>
-                            </div>
-
-                            {/* Mô tả */}
-                            <div>
-                                <label className="block text-gray-700 font-semibold mb-2">
-                                    Mô Tả
-                                </label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Nhập mô tả món ăn"
-                                    rows="3"
-                                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-orange-500"
-                                />
                             </div>
 
                             {/* Buttons */}
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
+                                    disabled={saving}
                                     className="bg-orange-500 text-white px-6 py-2 rounded font-bold hover:bg-orange-600 transition"
                                 >
-                                    {editingId ? 'Cập Nhật' : 'Thêm Mới'}
+                                    {saving
+                                        ? 'Đang lưu...'
+                                        : editingId
+                                          ? 'Cập Nhật'
+                                          : 'Thêm Mới'}
                                 </button>
                                 <button
                                     type="button"
@@ -288,8 +273,13 @@ export default function AdminFoods() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {foods.map((food) => (
                             <FoodCard
-                                key={food.foodId}
-                                food={food}
+                                key={food.id}
+                                food={{
+                                    ...food,
+                                    foodId: food.id,
+                                    foodName: food.name,
+                                    quantity: food.inStock,
+                                }}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                                 isAdmin={true}
