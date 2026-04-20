@@ -5,7 +5,7 @@ import FoodCard from '../components/FoodCard';
 import { AuthContext } from '../context/AuthContext';
 
 // TODO: Thay bằng API thật của bạn
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function AdminFoods() {
     const { token } = useContext(AuthContext);

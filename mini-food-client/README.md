@@ -180,7 +180,7 @@ File: `src/pages/*`
 
 ```javascript
 // TODO: Thay bằng API thật của bạn
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = process.env.
 ```
 
 Thay đổi thành URL API thực tế khi deploy.

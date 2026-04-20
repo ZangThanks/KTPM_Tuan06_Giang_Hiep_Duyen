@@ -1,10 +1,11 @@
 /* File: src/pages/Register.jsx */
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 // TODO: Thay bằng API thật của bạn
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Register() {
     const [username, setUsername] = useState('');
@@ -16,6 +17,7 @@ export default function Register() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -31,18 +33,31 @@ export default function Register() {
         setLoading(true);
 
         try {
-            // TODO: Thay bằng API thật của bạn
-            await axios.post(`${API_BASE}/auth/register`, {
+            await axios.post(`${API_BASE}/users/register`, {
                 username,
                 email,
                 password,
                 fullName,
             });
 
-            setSuccess(
-                'Đăng ký thành công! Chuyển hướng đến trang đăng nhập...',
-            );
-            setTimeout(() => navigate('/login'), 2000);
+            const loginResponse = await axios.post(`${API_BASE}/users/login`, {
+                username,
+                password,
+            });
+
+            const { token } = loginResponse.data || {};
+
+            if (!token) {
+                throw new Error('Login response does not contain token');
+            }
+
+            const userResponse = await axios.get(`${API_BASE}/users/username`, {
+                params: { username },
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            login(userResponse.data, token, userResponse.data?.role);
+            navigate('/');
         } catch (err) {
             setError(
                 err.response?.data?.message ||
@@ -113,7 +128,7 @@ export default function Register() {
                             Email
                         </label>
                         <input
-                            type="email"
+                            type="text"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Nhập email"

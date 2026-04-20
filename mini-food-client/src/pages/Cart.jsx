@@ -6,8 +6,9 @@ import { AuthContext } from '../context/AuthContext';
 import CartItem from '../components/CartItem';
 import axios from 'axios';
 
+
 // TODO: Thay bằng API thật của bạn
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Cart() {
     const { cart, getTotalPrice, clearCart } = useContext(CartContext);

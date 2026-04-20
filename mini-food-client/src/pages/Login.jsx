@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 
 // TODO: Thay bằng API thật của bạn
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -22,14 +22,23 @@ export default function Login() {
         setLoading(true);
 
         try {
-            // TODO: Thay bằng API thật của bạn
-            const response = await axios.post(`${API_BASE}/auth/login`, {
+            const response = await axios.post(`${API_BASE}/users/login`, {
                 username,
                 password,
             });
 
-            const { token, user, role } = response.data;
-            login(user, token, role);
+            const { token } = response.data || {};
+
+            if (!token) {
+                throw new Error('Login response does not contain token');
+            }
+
+            const userResponse = await axios.get(`${API_BASE}/users/username`, {
+                params: { username },
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            login(userResponse.data, token, userResponse.data?.role);
             navigate('/');
         } catch (err) {
             setError(

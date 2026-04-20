@@ -8,6 +8,8 @@ export default function Navbar() {
     const { user, logout, role } = useContext(AuthContext);
     const { cart } = useContext(CartContext);
     const navigate = useNavigate();
+    const effectiveRole = role || user?.role || '';
+    const displayName = user?.fullName || user?.username || 'Người dùng';
 
     const handleLogout = () => {
         logout();
@@ -34,7 +36,7 @@ export default function Navbar() {
                             Trang Chủ
                         </Link>
 
-                        {user && role === 'ADMIN' && (
+                        {user && effectiveRole === 'ADMIN' && (
                             <Link
                                 to="/admin-foods"
                                 className="text-gray-700 hover:text-orange-500 font-medium"
@@ -58,9 +60,16 @@ export default function Navbar() {
 
                         {user && (
                             <div className="border-l pl-6 flex items-center gap-4">
-                                <span className="text-sm font-medium text-gray-700">
-                                    👤 {user.username}
-                                </span>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-sm font-medium text-gray-700 leading-none">
+                                        👤 {displayName}
+                                    </span>
+                                    {effectiveRole && (
+                                        <span className="text-xs font-semibold text-orange-600 uppercase tracking-wide mt-1">
+                                            {effectiveRole}
+                                        </span>
+                                    )}
+                                </div>
                                 <button
                                     onClick={handleLogout}
                                     className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition"

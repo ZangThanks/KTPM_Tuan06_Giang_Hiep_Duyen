@@ -4,7 +4,7 @@ import axios from 'axios';
 import FoodCard from '../components/FoodCard';
 
 // TODO: Thay bằng API thật của bạn
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Home() {
     const [foods, setFoods] = useState([]);

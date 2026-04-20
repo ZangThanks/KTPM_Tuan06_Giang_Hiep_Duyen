@@ -9,32 +9,50 @@ export function AuthProvider({ children }) {
     const [role, setRole] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Khởi tạo - kiểm tra localStorage
     useEffect(() => {
         const savedToken = localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
         const savedRole = localStorage.getItem('role');
 
-        if (savedToken && savedUser && savedRole) {
-            setToken(savedToken);
-            setUser(JSON.parse(savedUser));
-            setRole(savedRole);
+        if (savedToken && savedUser) {
+            try {
+                const parsedUser = JSON.parse(savedUser);
+                setToken(savedToken);
+                setUser(parsedUser);
+                setRole(savedRole || parsedUser?.role || null);
+            } catch (e) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('role');
+            }
         }
 
         setLoading(false);
     }, []);
 
-    // Hàm đăng nhập
     const login = (userData, token, role) => {
+        const resolvedRole = role || userData?.role || null;
+
+        if (!userData || !token) {
+            console.error('Login called with invalid data:', {
+                userData,
+                token,
+                role: resolvedRole,
+            });
+            return;
+        }
         setUser(userData);
         setToken(token);
-        setRole(role);
+        setRole(resolvedRole);
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('role', role);
+        if (resolvedRole) {
+            localStorage.setItem('role', resolvedRole);
+        } else {
+            localStorage.removeItem('role');
+        }
     };
 
-    // Hàm đăng xuất
     const logout = () => {
         setUser(null);
         setToken(null);
