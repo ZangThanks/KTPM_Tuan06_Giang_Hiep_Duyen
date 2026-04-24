@@ -1,5 +1,5 @@
 /* File: src/components/Navbar.jsx */
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
@@ -10,11 +10,15 @@ import {
   Receipt,
   ShoppingCart,
 } from "lucide-react";
+import NotificationDropdown from "./NotificationDropdown";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Navbar() {
   const { user, logout, role } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
   const navigate = useNavigate();
+
   const effectiveRole = role || user?.role || "";
   const displayName = user?.fullName || user?.username || "Người dùng";
 
@@ -73,6 +77,9 @@ export default function Navbar() {
                 <Receipt />
               </Link>
             )}
+
+            {/* Thông báo */}
+            {user && <NotificationDropdown />}
 
             {user && (
               <div className="border-l pl-6 flex items-center gap-4">

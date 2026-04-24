@@ -56,7 +56,10 @@ export default function MyOrders() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-2xl text-gray-600">⏳ Đang tải đơn hàng...</p>
+        <p className="text-2xl text-gray-600">
+          <Hourglass className="size-4 animate-spin text-yellow-400" />
+          Đang tải đơn hàng...
+        </p>
       </div>
     );
   }

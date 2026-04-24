@@ -1,10 +1,8 @@
-/* File: src/pages/Home.jsx */
 import { useState, useEffect } from "react";
 import axios from "axios";
 import FoodCard from "../components/FoodCard";
-import { Hamburger } from "lucide-react";
+import { Hamburger, Bell, Hourglass } from "lucide-react";
 
-// TODO: Thay bằng API thật của bạn
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Home() {
@@ -18,7 +16,6 @@ export default function Home() {
 
   const fetchFoods = async () => {
     try {
-      // TODO: Thay bằng API thật của bạn (GET /api/foods hoặc /api/foods/list)
       const response = await axios.get(`${API_BASE}/foods`);
       setFoods(response.data || []);
     } catch (err) {
@@ -32,7 +29,10 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-2xl text-gray-600">Đang tải dữ liệu...</p>
+        <p className="text-2xl text-gray-600">
+          <Hourglass className="size-4 animate-spin text-yellow-400" />
+          Đang tải dữ liệu...
+        </p>
       </div>
     );
   }

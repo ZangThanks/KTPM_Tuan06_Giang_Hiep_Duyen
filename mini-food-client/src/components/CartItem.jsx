@@ -23,9 +23,11 @@ export default function CartItem({ item }) {
     <div className="bg-white p-4 rounded-lg shadow-md flex items-center justify-between gap-4">
       {/* Hình ảnh và tên */}
       <div className="flex items-center gap-4 flex-1">
-        <div className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center text-2xl">
-          {item.image || "🍔"}
-        </div>
+        <img
+          src={item.image}
+          width={80}
+          className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center text-2xl"
+        />
         <div>
           <h3 className="font-bold text-lg text-gray-800">{item.name}</h3>
           <p className="text-orange-500 font-semibold">
