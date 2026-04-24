@@ -8,6 +8,22 @@ spring:
 
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
       routes:
         - id: user-service
           uri: lb://user-service
@@ -27,9 +43,10 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/api/payments,/api/payments/**
+            - Path=/api/payments,/api/payments/**,api/notifications,api/notifications/**
 
 eureka:
   client:
     service-url:
+#      defaultZone: http://192.168.137.99:8761/eureka
       defaultZone: http://localhost:8761/eureka
