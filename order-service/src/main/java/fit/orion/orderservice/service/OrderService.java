@@ -20,9 +20,6 @@ public class OrderService {
     private OrderRepository repo;
 
     @Autowired
-    private OrderDetailService detailService;
-
-    @Autowired
     private UserServiceClient userService;
 
     @Autowired
@@ -41,26 +38,27 @@ public class OrderService {
         }
 
         List<OrderDetail> orderDetails = order.getOrderDetails();
+        if (orderDetails == null || orderDetails.isEmpty()) {
+            throw new Exception("Order details required!");
+        }
+
+        double totalAmount = 0;
         for (OrderDetail orderDetail : orderDetails) {
             FoodDTO food = foodService.getFoodById(orderDetail.getFoodId());
             if (food == null) {
                 throw new Exception("Food not found!");
             }
             orderDetail.setPrice(food.getPrice());
+            double lineTotal = food.getPrice() * orderDetail.getQuantity();
+            orderDetail.setLineTotal(lineTotal);
+            totalAmount += lineTotal;
+            orderDetail.setOrder(order);
         }
 
         order.setStatus("PENDING");
         order.setOrderDate(LocalDate.now());
+        order.setTotalAmount(totalAmount);
 
-        order.setOrderDetails(null);
-
-        Order savedOrder = repo.save(order);
-        for (OrderDetail orderDetail : orderDetails) {
-            orderDetail.setOrder(savedOrder);
-            detailService.save(orderDetail);
-        }
-
-        savedOrder.setOrderDetails(orderDetails);
         return repo.save(order);
     }
 
@@ -83,5 +81,15 @@ public class OrderService {
 
         order.setId(id);
         return repo.save(order);
+    }
+
+    @Transactional
+    public Order updateStatus(long id, String status) {
+        Order existing = getById(id);
+        if (existing == null) {
+            return null;
+        }
+        existing.setStatus(status);
+        return repo.save(existing);
     }
 }

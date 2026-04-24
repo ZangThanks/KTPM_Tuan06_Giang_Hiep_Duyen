@@ -1,6 +1,7 @@
 package fit.orion.paymentservice.service.client;
 
 import fit.orion.paymentservice.dto.OrderDTO;
+import fit.orion.paymentservice.dto.OrderStatusRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,13 +12,11 @@ public class OrderServiceClient {
     private RestTemplate restTemplate;
 
     public OrderDTO getOrder(long orderId) {
-        return restTemplate.getForObject("http://order-service/api/orders/" + orderId, OrderDTO.class);
+        return restTemplate.getForObject("lb://order-service/api/orders/" + orderId, OrderDTO.class);
     }
 
     public void updateOrderStatus(long orderId, String status) {
-        String url = "http://order-service/api/orders/" + orderId;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus(status);
-        restTemplate.put(url, orderDTO);
+        String url = "lb://order-service/api/orders/" + orderId + "/status";
+        restTemplate.put(url, new OrderStatusRequest(status));
     }
 }

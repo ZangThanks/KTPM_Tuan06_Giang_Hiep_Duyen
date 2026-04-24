@@ -5,6 +5,7 @@ import fit.orion.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,7 +25,7 @@ public class PaymentController {
     }
 
     @PostMapping("")
-    public Payment save(@RequestBody Payment payment) {
-        return service.save(payment);
+    public Payment save(@RequestBody Payment payment, Principal principal) {
+        return service.save(payment, principal.getName());
     }
 }
