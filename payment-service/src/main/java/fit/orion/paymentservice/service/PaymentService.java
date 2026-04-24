@@ -41,4 +41,9 @@ public class PaymentService {
         notificationService.addNotification(username, savedPayment.getOrderId());
         return savedPayment;
     }
+
+    @Transactional(readOnly = true)
+    public List<Payment> findByOrderId(long orderId) {
+        return repo.findAllByOrderId(orderId);
+    }
 }

@@ -4,6 +4,7 @@ import fit.orion.orderservice.dto.OrderStatusRequest;
 import fit.orion.orderservice.dto.UserDTO;
 import fit.orion.orderservice.model.Order;
 import fit.orion.orderservice.service.OrderService;
+import fit.orion.orderservice.service.client.PaymentServiceClient;
 import fit.orion.orderservice.service.client.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,9 @@ public class OrderController {
 
     @Autowired
     private UserServiceClient userServiceClient;
+
+    @Autowired
+    private PaymentServiceClient paymentServiceClient;
 
     @GetMapping("")
     public List<Order> getOrders() {
@@ -65,5 +69,25 @@ public class OrderController {
             return new ArrayList<>();
         }
         return service.getByUserId(user.getId());
+    }
+
+    @GetMapping("/me/{id}")
+    public Order getMyOrder(@PathVariable long id, Principal principal) {
+        String username = principal.getName();
+        UserDTO user = userServiceClient.getUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        return service.getById(id);
+    }
+
+    @GetMapping("/me/{id}/is-paid")
+    public boolean isPaid(@PathVariable long id, Principal principal) {
+        String username = principal.getName();
+        UserDTO user = userServiceClient.getUserByUsername(username);
+        if (user == null) {
+            return false;
+        }
+        return !paymentServiceClient.getPaymentByOrderId(id).isEmpty();
     }
 }

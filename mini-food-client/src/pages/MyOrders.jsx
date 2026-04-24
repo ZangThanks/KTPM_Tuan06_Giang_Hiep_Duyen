@@ -1,12 +1,14 @@
 /* File: src/pages/MyOrders.jsx */
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { List, Receipt } from "lucide-react";
+import { Hourglass, List, Receipt } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 export default function MyOrders() {
   const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -186,7 +188,10 @@ export default function MyOrders() {
                     )}
                   </div>
                   {order.status === "PENDING" && (
-                    <button className="bg-blue-500 text-white px-4 py-3 rounded font-medium hover:bg-blue-600 transition text-[18px]">
+                    <button
+                      onClick={() => navigate(`/payment/${order.id}`)}
+                      className="bg-blue-500 text-white px-4 py-3 rounded font-medium hover:bg-blue-600 transition text-[18px]"
+                    >
                       Thanh toán
                     </button>
                   )}

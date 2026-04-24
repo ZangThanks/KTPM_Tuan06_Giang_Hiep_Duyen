@@ -28,4 +28,9 @@ public class PaymentController {
     public Payment save(@RequestBody Payment payment, Principal principal) {
         return service.save(payment, principal.getName());
     }
+
+    @GetMapping("/order/{orderId}")
+    public List<Payment> findByOrderId(@PathVariable long orderId) {
+        return service.findByOrderId(orderId);
+    }
 }

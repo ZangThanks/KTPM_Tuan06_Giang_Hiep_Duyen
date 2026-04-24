@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 import CartItem from "../components/CartItem";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, Hourglass } from "lucide-react";
 import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
@@ -66,7 +66,7 @@ export default function Cart() {
       alert(`Đặt hàng thành công!`);
       setOrderSuccess(true);
       clearCart();
-      //setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/"), 2000);
     } catch (err) {
       console.error("Order error:", err.response?.data || err.message);
       alert(`Lỗi đặt hàng: ${err.response?.data?.message || err.message}`);
@@ -93,19 +93,17 @@ export default function Cart() {
   if (orderSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-green-50">
-        <div className="text-center">
-          <div className="text-6xl mb-4">
-            <CircleCheck className="text-green-600" />
+        <div className="text-center flex flex-col items-center bg-white rounded-lg shadow-md p-10">
+          <div className="text-6xl mb-2 flex items-center justify-center">
+            <CircleCheck className="text-green-600 size-10" />
           </div>
           <h1 className="text-4xl font-bold text-green-600 mb-2">
             Đặt Hàng Thành Công!
           </h1>
-          <p className="text-gray-600 mb-4">
+          <div className="text-gray-600 mb-2 flex items-center gap-2">
+            <Hourglass className="size-4 animate-spin text-yellow-400" />
             Cảm ơn bạn đã đặt hàng. Chuyển hướng...
-          </p>
-          <p className="text-sm text-gray-500">
-            Kiểm tra console để xem chi tiết đơn hàng
-          </p>
+          </div>
         </div>
       </div>
     );
